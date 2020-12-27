@@ -1,11 +1,20 @@
-# Monitor, Log, and Debug
+# Monitor, Log and Debug
 [Debug Pods and ReplicationControllers](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-pod-replication-controller/)
-- Pod - Pending, cause should be insufficient CPU or Memory. [Pending Pod Example](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application-introspection/), **kubectl describe pod <pod-name>** to find the related information on the events.
+- Pod - Pending; cause should be insufficient CPU or Memory. [Pending Pod Example](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application-introspection/), **kubectl describe pod <pod-name>** to find the related information on the events.
+- Pod - Waiting; casue should be the wrong image name which can not be pull, try manually docker image pull into local machine.
 
-- Pod - Waiting, casue should be the wrong image name which can not be pull, try manually docker image pull into local machine.
+# Pod Generate
+- kubectl run <pod_name> --image = <image_name> --namespace = <name_space> --labels = <label_name> --replicas = 1 --dry-run = client -o yaml
+- yaml style: *NOT RECOMMEND*
+[Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
+# Persistence Volume
+- [Emptydir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir), multiple containers among pod can share the information in this volume, and if the pod is gone, then all volume is also gone.
 
-
+# DaemonSet
+>> A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. 
+As nodes are added to the cluster, Pods are added to them. 
+As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
 
 
 
