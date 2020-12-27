@@ -2,7 +2,7 @@
 [Debug Pods and ReplicationControllers](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-pod-replication-controller/)
 - Pod - Pending, cause should be insufficient CPU or Memory. [Pending Pod Example](https://kubernetes.io/docs/tasks/debug-application-cluster/debug-application-introspection/), **kubectl describe pod <pod-name>** to find the related information on the events.
 
-- Pod - Waiting, casue should be the wrong image name which can not be pull, try manually docker image pull into local machine
+- Pod - Waiting, casue should be the wrong image name which can not be pull, try manually docker image pull into local machine.
 
 
 
