@@ -37,8 +37,11 @@ spec:
         .......
 ```
 **spec.selector.matchLabels** define what pods' label DaemonSet would take care.
+
 **spec.template.metadata.labels** pods' label, **spec.template** is pod template.
+
 *So, the label value of **spec.selector.matchLabels** must be same to **spec.template.metadata.labels***
+
 **metadata.labels** is just DaemonSet its label value.
 
 # Deployment
@@ -61,8 +64,11 @@ spec:
         ....
 ```
 **spec.selector.matchLabels** is what pods' label deployment take care.
+
 **spec.template.metadata.labels** is pods' label, **spec.template** is pod template.
+
 *So, the label value of **spec.selector.matchLabels** must be same to **spec.template.metadata.labels***
+
 **metadata.labels** is just Deployment itself label value.
 
 
