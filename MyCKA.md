@@ -12,11 +12,58 @@
 - [Emptydir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir), multiple containers among pod can share the information in this volume, and if the pod is gone, then all volume is also gone.
 
 # DaemonSet
->> A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. 
-As nodes are added to the cluster, Pods are added to them. 
-As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
+>> A DaemonSet ensures that all (or some) Nodes run a copy of a Pod, depends on the nodes' taint and toleration.
+>> As nodes are added to the cluster, Pods are added to them. 
+>> As nodes are removed from the cluster, those Pods are garbage collected. 
+>> Deleting a DaemonSet will clean up the Pods it created.
 
+[DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
 
+```sh
+metadata:
+  name: fluentd-elasticsearch
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+     name: fluentd-elasticsearch  
+  template:
+    metadata:
+      labels:
+       name: fluentd-elasticsearch
+    spec:
+      containers:
+        .......
+```
+**spec.selector.matchLabels** define what pods' label DaemonSet would take care.
+**spec.template.metadata.labels** pods' label, **spec.template** is pod template.
+*So, the label value of **spec.selector.matchLabels** must be same to **spec.template.metadata.labels***
+**metadata.labels** is just DaemonSet its label value.
+
+# Deployment
+```sh
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        ....
+```
+**spec.selector.matchLabels** is what pods' label deployment take care.
+**spec.template.metadata.labels** is pods' label, **spec.template** is pod template.
+*So, the label value of **spec.selector.matchLabels** must be same to **spec.template.metadata.labels***
+**metadata.labels** is just Deployment itself label value.
 
 
 # Dillinger
