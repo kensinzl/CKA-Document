@@ -81,8 +81,11 @@ spec:
 - NodeName: Typically match the node name. **Not Recommend**
 - Taint: Allow node to repeal pods.  **key=value:effect:operator**, [taint-and-toleration](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 >> Add taint for a node / remove a taint from a node
+
 >> This means that no pod will be able to schedule onto node1 unless it has a matching toleration.
+
 >> Taints and tolerations work together to ensure that pods are not scheduled onto inappropriate nodes.
+
 >> Operator default value is 'Equal' which means match value and effect.
 ```sh
 root@kubemaster:~/CKA# kubectl describe nodes kubemaster | grep -i Taints
