@@ -111,6 +111,10 @@ kubectl taint nodes node1 key1=value1:NoSchedule-
 | NodeSelector | ◯ | ◯ |
 | NodeName| ◯ | ◯ | 
 
+# Secret
+https://feisky.gitbooks.io/kubernetes/content/concepts/secret.html
+https://medium.com/better-programming/how-to-use-kubernetes-secrets-for-storing-sensitive-config-data-f3c5e7d11c15
+
 
 # Dillinger
 
