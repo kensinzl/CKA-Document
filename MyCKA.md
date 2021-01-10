@@ -112,6 +112,59 @@ kubectl taint nodes node1 key1=value1:NoSchedule-
 | NodeName| ◯ | ◯ | 
 
 # Secret
+Kubernetes Secrets let you store and manage sensitive information, such as passwords. Secrets can be mounted as data volumes or exposed as environment variables to be used by a container in a Pod.
+- Opaque Secret, using base64 to decode, eg: *echo MWYyZDFlMmU2N2Rm | base64 --decode*
+```sh
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  password: MWYyZDFlMmU2N2Rm
+  username: YWRtaW4=
+```
+
+- Data Volumes Utilization
+>> **cat /ect/foo/my-group/my-username** will get the value of key: username
+>> the value is after base64 decode
+```sh
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      items:
+      - key: username
+        path: my-group/my-username
+```
+
+- Environment Variables
+>> enter the pod, *echo $SECRET_USERNAME, echo $SECRET_PWD to show the value after base64 decode* 
+```sh
+  containers:
+    - name: nginx
+      image: nginx
+      env:
+        - name: SECRET_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mysecret
+              key: username
+        - name: SECRET_PWD
+          valueFrom:
+            secretKeyRef:
+              name: mysecret
+              key: password
+```
+
 https://feisky.gitbooks.io/kubernetes/content/concepts/secret.html
 https://medium.com/better-programming/how-to-use-kubernetes-secrets-for-storing-sensitive-config-data-f3c5e7d11c15
 
