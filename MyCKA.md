@@ -111,9 +111,11 @@ kubectl taint nodes node1 key1=value1:NoSchedule-
 | NodeSelector | ◯ | ◯ |
 | NodeName| ◯ | ◯ | 
 
-# Secret
+# Secret, [Refer 1](https://feisky.gitbooks.io/kubernetes/content/concepts/secret.html), [Refer 2](https://medium.com/better-programming/how-to-use-kubernetes-secrets-for-storing-sensitive-config-data-f3c5e7d11c15)
 Kubernetes Secrets let you store and manage sensitive information, such as passwords. Secrets can be mounted as data volumes or exposed as environment variables to be used by a container in a Pod.
 - Opaque Secret, using base64 to decode, eg: *echo MWYyZDFlMmU2N2Rm | base64 --decode*
+>> no matter **describe**, **-o yaml**, both show the encode style
+>> only following two styles show the decode value
 ```sh
 apiVersion: v1
 kind: Secret
@@ -165,10 +167,10 @@ spec:
               key: password
 ```
 
-https://feisky.gitbooks.io/kubernetes/content/concepts/secret.html
-https://medium.com/better-programming/how-to-use-kubernetes-secrets-for-storing-sensitive-config-data-f3c5e7d11c15
 
 
+
+https://staight.github.io/2019/09/26/kubernetes%E4%B8%AD%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6-%E7%94%A8%E6%88%B7%E8%AE%A4%E8%AF%81/
 # Dillinger
 
 [![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
