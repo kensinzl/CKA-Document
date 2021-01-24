@@ -167,6 +167,66 @@ spec:
               key: password
 ```
 
+# RBAC - role based access control
+- How to create new user
+```sh
+1. openssl genrsa -out employee.key 2048
+2. openssl req -new -key employee.key -out employee.csr -subj "/CN=employee"
+3. openssl x509 -req -in employee.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out employee.crt -days 3650  # sign the employee to CA
+4. kubectl config set-credentials employee --client-certificate=./employee.crt  --client-key=./employee.key  # add a new user
+5. kubectl config view -o jsonpath='{.users[*].name}'   # user: employee is already set up
+6. kubectl config set-context employee-context --cluster=kubernetes --user=employee  # add employee-context to the context using a specific username
+7. kubectl config get-contexts   # display list of contexts, now should has the default and employee-context, * means current
+CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPACE
+          employee-context              kubernetes   employee           
+*         kubernetes-admin@kubernetes   kubernetes   kubernetes-admin   
+8. kubectl config current-context   # get current context
+-- kubernetes-admin@kubernetes
+9. kubectl config use-context employee-context   # switch the context to employee-context
+10. kubectl get pods
+Error from server (Forbidden): nodes is forbidden: User "employee" cannot list resource "nodes" in API group "" at the cluster scope -- because user: employee still have no role binding
+11. kubectl --context=kubernetes-admin@kubernete get pods # although current context is not default still can use context=default to fetch
+```
+- How to let employee access the pod
+```sh
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: deployment-manager
+rules:
+- apiGroups: ["", "extensions", "apps"]
+  resources: ["deployments", "replicasets", "pods"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"] # You can also use ["*"]
+```
+```sh
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: deployment-manager-binding
+subjects:
+- kind: User
+  name: employee
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: deployment-manager
+  apiGroup: ""
+```
+
+###### Now try *kubectl get pods* among employee user can work. but service we do not put on the resource, so *kubectl get service* still not work
+
+>>root@kubemaster:~/CKA# kubectl get services
+Error from server (Forbidden): services is forbidden: User "employee" cannot list resource "services" in API group "" in the namespace "default"
+
+Reference:
+https://xinlichao.cn/back-end/k8s/k8s-rbac/
+https://www.jianshu.com/p/3ef44ddfbed3
+https://www.cnblogs.com/zhaobowen/p/13562487.html
+https://docs.bitnami.com/tutorials/configure-rbac-in-your-kubernetes-cluster/#use-case-1-create-user-with-limited-namespace-access
+
+
+# Good Links
+- [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 
 
 
