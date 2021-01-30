@@ -167,7 +167,7 @@ spec:
               key: password
 ```
 
-# RBAC - role based access control
+# RBAC - role based access control [Refer1](https://kubernetes.io/docs/reference/access-authn-authz/rbac/) [Refer2](https://www.jianshu.com/p/3ef44ddfbed3)
 - How to create new user
 ```sh
 1. openssl genrsa -out employee.key 2048
@@ -217,12 +217,6 @@ roleRef:
 
 >>root@kubemaster:~/CKA# kubectl get services
 Error from server (Forbidden): services is forbidden: User "employee" cannot list resource "services" in API group "" in the namespace "default"
-
-Reference:
-https://xinlichao.cn/back-end/k8s/k8s-rbac/
-https://www.jianshu.com/p/3ef44ddfbed3
-https://www.cnblogs.com/zhaobowen/p/13562487.html
-https://docs.bitnami.com/tutorials/configure-rbac-in-your-kubernetes-cluster/#use-case-1-create-user-with-limited-namespace-access
 
 
 # Good Links
