@@ -283,7 +283,7 @@ spec:
   - Egress
 ```
 ##### Ingress and Egress
-`- be careful of the three dash '-' from ipBlock, namespaceSelector and podSelector, that means match either of them. namespaceSelector is the same namespace with the its network policy. Eg: here networkpolicy and namespaceSelector is the same default namespace`
+`- be careful of the three dash '-' from ipBlock, namespaceSelector and podSelector, that means match either of them. podSelector is the same namespace with the its network policy. Eg: here networkpolicy and podSelector is the same default namespace`
 `- this example shows how to control the Ingress and Egress of one pod which label is (role=db)`
 ```sh
 apiVersion: networking.k8s.io/v1
