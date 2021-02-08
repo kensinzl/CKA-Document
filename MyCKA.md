@@ -218,6 +218,132 @@ roleRef:
 >>root@kubemaster:~/CKA# kubectl get services
 Error from server (Forbidden): services is forbidden: User "employee" cannot list resource "services" in API group "" in the namespace "default"
 
+# Network Policy [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), [Hand Dirty](https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/)
+>> it controls traffic flow for a pod 
+##### selects all pods but does not allow any ingress traffic to those pods. podSelector {} means all pods
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+```
+
+##### allow all traffic to all pods. ingress {} means all traffic
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-ingress
+spec:
+  podSelector: {}
+  ingress:
+  - {}
+  policyTypes:
+  - Ingress
+```
+#####  selects all pods does not allow any egress traffic from those pods.
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+```
+
+##### allow all traffic from all pods.
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-all-egress
+spec:
+  podSelector: {}
+  egress:
+  - {}
+  policyTypes:
+  - Egress
+```
+##### deny all ingress and all egress traffic
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+```
+##### Ingress and Egress
+`- be careful of the three dash '-' from ipBlock, namespaceSelector and podSelector, that means match either of them. namespaceSelector is the same namespace with the its network policy. Eg: here networkpolicy and namespaceSelector is the same default namespace`
+`- this example shows how to control the Ingress and Egress of one pod which label is (role=db)`
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
+```
+
+`only one dash means both namespaceSelector and podSelector match to select the particular Pods`
+```sh
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          user: alice
+      podSelector:
+        matchLabels:
+          role: client
+```
+`match either of namespaceSelector of podSelector.Contains two elements in the from array, and allows connections from Pods in the local Namespace with the label role=client, or from any Pod in any namespace with the label user=alice.`
+```sh
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          user: alice
+    - podSelector:
+        matchLabels:
+          role: client
+```
 
 # Good Links
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
