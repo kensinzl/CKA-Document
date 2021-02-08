@@ -218,7 +218,7 @@ roleRef:
 >>root@kubemaster:~/CKA# kubectl get services
 Error from server (Forbidden): services is forbidden: User "employee" cannot list resource "services" in API group "" in the namespace "default"
 
-# Network Policy [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), [Hand Dirty](https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/)
+# Network Policy [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), [Hand Dirty](https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/), [Good View](https://medium.com/@reuvenharrison/an-introduction-to-kubernetes-network-policies-for-security-people-ba92dd4c809d)
 >> it controls traffic flow for a pod 
 ##### selects all pods but does not allow any ingress traffic to those pods. podSelector {} means all pods
 ```sh
