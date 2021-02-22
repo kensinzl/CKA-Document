@@ -345,6 +345,38 @@ spec:
           role: client
 ```
 
+# DNS
+>>> The pod is ephemeral, so we should use service to access the pod.
+>>> We can use curl http://<pod_internal_ip>:<pod_port> from one pod.
+>>> But remembering ip is tediour, so better directly use service name.
+>>> We can use curl http://<service>:<service_port> from one pod.
+>>> So DNS is to use predictable name to resolve the particular IP.
+>>> K8S DNS now is coredns pods among kube-system namespaces.
+```sh
+$ kubectl get pods -o wide
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+dnsutils                    1/1     Running   0          10m   172.18.0.6   minikube   <none>           <none>
+nginx-dns-5b85bb5dc-ssxpl   1/1     Running   0          13s   172.18.0.7   minikube   <none>           <none>
+$ kubectl get svc -o wide
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP   15m   <none>
+nginx-dns    ClusterIP   10.107.120.165   <none>        80/TCP    69s   run=nginx-dns
+$ kubectl exec -it dnsutils -- curl http://172.18.0.7:80
+$ kubectl exec -it dnsutils -- curl http://nginx-dns:80 or http://10.107.120.165:80
+$ kubectl exec -it dnsutils -- bin/ash
+/ # nslookup nginx-dns
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   nginx-dns.default.svc.cluster.local => <hostname>.<namespace>.<type>.<root>
+Address: 10.107.120.165
+```
+### Refer
+[MiniKube Example - can pratice on Official Test](https://www.bogotobogo.com/DevOps/Docker/Docker_Kubernetes_DNS_with_Pods_Services.php)
+[Official Test](https://kubernetes.io/docs/tutorials/hello-minikube/)
+[Another Example](https://medium.com/kubernetes-tutorials/kubernetes-dns-for-services-and-pods-664804211501)
+[Debugging DNS Resolution - Need See During Test](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/)
+
 # Good Links
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 
