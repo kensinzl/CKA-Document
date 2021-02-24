@@ -379,6 +379,7 @@ Address: 10.107.120.165
 
 # Good Links
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
+- [Update the node](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
 
 
 
