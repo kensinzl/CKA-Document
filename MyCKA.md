@@ -376,6 +376,7 @@ Address: 10.107.120.165
 [Official Test](https://kubernetes.io/docs/tutorials/hello-minikube/)
 [Another Example](https://medium.com/kubernetes-tutorials/kubernetes-dns-for-services-and-pods-664804211501)
 [Debugging DNS Resolution - Need See During Test](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/)
+[Hand Dirty](https://kodekloud.com/courses/certified-kubernetes-administrator-with-practice-tests-labs/lectures/12038776)
 
 # Good Links
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
