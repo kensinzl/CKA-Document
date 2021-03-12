@@ -371,6 +371,181 @@ Address:        10.96.0.10#53
 Name:   nginx-dns.default.svc.cluster.local => <hostname>.<namespace>.<type>.<root>
 Address: 10.107.120.165
 ```
+
+### Maintain the NODE
+#####   kubectl drain <node_name>
+>>> 1. Drain all pods existing in this node, exluding the daemonset because daemonset have to exist in each node.
+>>> 2. If pods not managed by the replicaset, the drained pod will be gone forever. So better to make to backup for the pod's yaml.
+>>> 3. After draining, the node will become unschedule, that means the node be with the taint: unschedule.
+
+#####   kubectl cordon <node_name>
+>>> 1. Making node into unschedule.
+>>> 2. Do not drain the existing pods in this node.
+
+#####   kubectl uncordon <node_name>
+>>> 1. Making the node back to normal to accept the new pods allocation.
+
+`Eg1: The following describe Daemonsets pods can not be drained.`
+```sh
+controlplane $ kubectl drain node01
+node/node01 cordoned
+error: unable to drain node "node01", aborting command...
+
+There are pending nodes to be drained:
+ node01
+error: cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/kube-flannel-ds-amd64-vkqxk, kube-system/kube-proxy-9hndl
+controlplane $ kubectl get pods -n kube-system -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE     IP            NODE           
+coredns-f9fd979d6-nzwxd                1/1     Running   0          5m7s    10.244.1.2    node03         
+coredns-f9fd979d6-s55nd                1/1     Running   1          5m7s    10.244.3.3    node01         
+etcd-controlplane                      1/1     Running   0          5m16s   172.17.0.10   controlplane   
+kube-apiserver-controlplane            1/1     Running   0          5m16s   172.17.0.10   controlplane   
+kube-controller-manager-controlplane   1/1     Running   0          5m16s   172.17.0.10   controlplane   
+kube-flannel-ds-amd64-2rnsm            1/1     Running   0          5m7s    172.17.0.10   controlplane   
+kube-flannel-ds-amd64-7c42p            1/1     Running   1          4m57s   172.17.0.53   node02         
+kube-flannel-ds-amd64-qzsfz            1/1     Running   1          4m57s   172.17.0.20   node03         
+kube-flannel-ds-amd64-vkqxk            1/1     Running   2          4m56s   172.17.0.40   node01         
+kube-proxy-9hndl                       1/1     Running   2          4m56s   172.17.0.40   node01         
+kube-proxy-hk72c                       1/1     Running   1          4m57s   172.17.0.53   node02         
+kube-proxy-lfgxg                       1/1     Running   0          5m7s    172.17.0.10   controlplane   
+kube-proxy-t66wx                       1/1     Running   1          4m57s   172.17.0.20   node03         
+kube-scheduler-controlplane            1/1     Running   0          5m15s   172.17.0.10   controlplane   
+```
+
+`Eg2: After using --ignore-daemonsets, the daemonset is not ignored but others was drained.`
+```sh
+controlplane $ kubectl drain node01 --ignore-daemonsets
+node/node01 already cordoned
+WARNING: ignoring DaemonSet-managed Pods: kube-system/kube-flannel-ds-amd64-vkqxk, kube-system/kube-proxy-9hndl
+evicting pod default/blue-746c87566d-2q5xn
+evicting pod default/red-75f847bf79-hl72f
+evicting pod kube-system/coredns-f9fd979d6-s55nd
+pod/blue-746c87566d-2q5xn evicted
+pod/red-75f847bf79-hl72f evicted
+pod/coredns-f9fd979d6-s55nd evicted
+node/node01 evicted
+controlplane $ 
+controlplane $ kubectl get pods -n kube-system -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE     IP            NODE        
+coredns-f9fd979d6-nzwxd                1/1     Running   0          6m21s   10.244.1.2    node03      
+coredns-f9fd979d6-s99x9                1/1     Running   0          19s     10.244.2.4    node02      
+etcd-controlplane                      1/1     Running   0          6m30s   172.17.0.10   controlplane
+kube-apiserver-controlplane            1/1     Running   0          6m30s   172.17.0.10   controlplane
+kube-controller-manager-controlplane   1/1     Running   0          6m30s   172.17.0.10   controlplane
+kube-flannel-ds-amd64-2rnsm            1/1     Running   0          6m21s   172.17.0.10   controlplane
+kube-flannel-ds-amd64-7c42p            1/1     Running   1          6m11s   172.17.0.53   node02      
+kube-flannel-ds-amd64-qzsfz            1/1     Running   1          6m11s   172.17.0.20   node03      
+kube-flannel-ds-amd64-vkqxk            1/1     Running   2          6m10s   172.17.0.40   node01      
+kube-proxy-9hndl                       1/1     Running   2          6m10s   172.17.0.40   node01      
+kube-proxy-hk72c                       1/1     Running   1          6m11s   172.17.0.53   node02      
+kube-proxy-lfgxg                       1/1     Running   0          6m21s   172.17.0.10   controlplane
+kube-proxy-t66wx                       1/1     Running   1          6m11s   172.17.0.20   node03      
+kube-scheduler-controlplane            1/1     Running   0          6m29s   172.17.0.10   controlplane
+```
+
+`Eg3: After draining, the node become unschedule and with unschedule taint and all pods is distributed into other nodes.`
+```sh
+controlplane $ kubectl get nodes
+NAME           STATUS                     ROLES    AGE     VERSION
+controlplane   Ready                      master   8m19s   v1.19.0
+node01         Ready,SchedulingDisabled   <none>   7m48s   v1.19.0
+node02         Ready                      <none>   7m49s   v1.19.0
+node03         Ready                      <none>   7m49s   v1.19.0
+controlplane $ 
+controlplane $ kubectl get pods -o wide
+NAME                    READY   STATUS    RESTARTS   AGE     IP           NODE     NOMINATED NODE   READINESS GATES
+blue-746c87566d-gx6nn   1/1     Running   0          6m35s   10.244.1.3   node03   <none>           <none>
+blue-746c87566d-rb4h7   1/1     Running   0          2m10s   10.244.1.4   node03   <none>           <none>
+blue-746c87566d-tmm2r   1/1     Running   0          6m35s   10.244.2.3   node02   <none>           <none>
+red-75f847bf79-8gzkl    1/1     Running   0          6m35s   10.244.2.2   node02   <none>           <none>
+red-75f847bf79-fprhv    1/1     Running   0          2m9s    10.244.1.5   node03   <none>           <none>
+controlplane $ 
+controlplane $ kubectl describe nodes node01 | grep -i taint
+Taints:             node.kubernetes.io/unschedulable:NoSchedule
+```
+
+`Eg4: Finish patches or updating, the node should uncordon to accept new pods allocation`
+```sh
+controlplane $ kubectl uncordon  node01
+node/node01 uncordoned
+controlplane $ kubectl get nodes
+NAME           STATUS   ROLES    AGE   VERSION
+controlplane   Ready    master   17m   v1.19.0
+node01         Ready    <none>   16m   v1.19.0
+node02         Ready    <none>   16m   v1.19.0
+node03         Ready    <none>   16m   v1.19.0
+```
+
+`Eg5: The pods<hr-app> is not managed by Rs and if drained, it will be gone.`
+```sh
+controlplane $ kubectl get pods -o wide
+NAME                    READY   STATUS    RESTARTS   AGE   IP           NODE     
+blue-746c87566d-gx6nn   1/1     Running   0          21m   10.244.1.3   node03   
+blue-746c87566d-rb4h7   1/1     Running   0          17m   10.244.1.4   node03   
+blue-746c87566d-tmm2r   1/1     Running   0          21m   10.244.2.3   node02   
+hr-app                  1/1     Running   0          29s   10.244.2.5   node02   
+red-75f847bf79-8gzkl    1/1     Running   0          21m   10.244.2.2   node02   
+red-75f847bf79-fprhv    1/1     Running   0          17m   10.244.1.5   node03   
+controlplane $ 
+controlplane $ kubectl get rs -o wide
+NAME              DESIRED   CURRENT   READY   AGE   CONTAINERS   IMAGES         
+blue-746c87566d   3         3         3       22m   nginx        nginx:alpine   
+red-75f847bf79    2         2         2       22m   nginx        nginx:alpine   
+controlplane $ kubectl drain node02
+node/node02 cordoned
+error: unable to drain node "node02", aborting command...
+
+There are pending nodes to be drained:
+ node02
+cannot delete Pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet (use --force to override): default/hr-app
+cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/kube-flannel-ds-amd64-7c42p, kube-system/kube-proxy-hk72c
+controlplane $ kubectl drain node02 --force
+node/node02 already cordoned
+error: unable to drain node "node02", aborting command...
+
+There are pending nodes to be drained:
+ node02
+error: cannot delete DaemonSet-managed Pods (use --ignore-daemonsets to ignore): kube-system/kube-flannel-ds-amd64-7c42p, kube-system/kube-proxy-hk72c
+controlplane $ kubectl drain node02 --force --ignore-daemonsets
+node/node02 already cordoned
+WARNING: deleting Pods not managed by ReplicationController, ReplicaSet, Job, DaemonSet or StatefulSet: default/hr-app; ignoring DaemonSet-managed Pods: kube-system/kube-flannel-ds-amd64-7c42p, kube-system/kube-proxy-hk72c
+evicting pod default/blue-746c87566d-tmm2r
+evicting pod default/hr-app
+evicting pod default/red-75f847bf79-8gzkl
+evicting pod kube-system/coredns-f9fd979d6-s99x9
+pod/red-75f847bf79-8gzkl evicted
+pod/coredns-f9fd979d6-s99x9 evicted
+pod/blue-746c87566d-tmm2r evicted
+pod/hr-app evicted
+node/node02 evicted
+```
+
+`Eg6: Cordon a node do not drain the existing pod just make it into unschedule`
+```sh
+controlplane $ kubectl get pods -o wide
+NAME                    READY   STATUS    RESTARTS   AGE     IP           NODE     
+blue-746c87566d-2zfxq   1/1     Running   0          7m53s   10.244.3.7   node01   
+blue-746c87566d-gx6nn   1/1     Running   0          36m     10.244.1.3   node03   
+blue-746c87566d-rb4h7   1/1     Running   0          31m     10.244.1.4   node03   
+red-75f847bf79-fprhv    1/1     Running   0          31m     10.244.1.5   node03   
+red-75f847bf79-hbhmt    1/1     Running   0          7m53s   10.244.3.6   node01   
+controlplane $ kubectl cordon node03
+node/node03 cordoned
+controlplane $ kubectl get nodes
+NAME           STATUS                     ROLES    AGE   VERSION
+controlplane   Ready                      master   38m   v1.19.0
+node01         Ready                      <none>   38m   v1.19.0
+node02         Ready,SchedulingDisabled   <none>   38m   v1.19.0
+node03         Ready,SchedulingDisabled   <none>   38m   v1.19.0
+controlplane $ kubectl get pods -o wide
+NAME                    READY   STATUS    RESTARTS   AGE     IP           NODE     
+blue-746c87566d-2zfxq   1/1     Running   0          8m38s   10.244.3.7   node01   
+blue-746c87566d-gx6nn   1/1     Running   0          36m     10.244.1.3   node03   
+blue-746c87566d-rb4h7   1/1     Running   0          32m     10.244.1.4   node03   
+red-75f847bf79-fprhv    1/1     Running   0          32m     10.244.1.5   node03   
+red-75f847bf79-hbhmt    1/1     Running   0          8m38s   10.244.3.6   node01   
+```
+
 ### Refer
 [MiniKube Example - can pratice on Official Test](https://www.bogotobogo.com/DevOps/Docker/Docker_Kubernetes_DNS_with_Pods_Services.php)
 [Official Test](https://kubernetes.io/docs/tutorials/hello-minikube/)
