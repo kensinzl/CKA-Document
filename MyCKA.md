@@ -553,6 +553,21 @@ red-75f847bf79-hbhmt    1/1     Running   0          8m38s   10.244.3.6   node01
 [Debugging DNS Resolution - Need See During Test](https://kubernetes.io/docs/tasks/administer-cluster/dns-debugging-resolution/)
 [Hand Dirty](https://kodekloud.com/courses/certified-kubernetes-administrator-with-practice-tests-labs/lectures/12038776)
 
+#### ETCD
+##### The ETCD has the ambugious document, [Operating etcd clusters for Kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/configure-upgrade-etcd/), which does not include restore stuff.
+>>>> 1. ETCDCTL_API=3 etcdctl --endpoints=<IP> --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save <SAVED_PATH>
+`cacert, cert and key` are not on the document. You can use `ETCDCTL_API=3 etcdctl snapshot save --help` to get these three attributes, whose values are shown on the test.
+>>>> 2. ETCDCTL_API=3 etcdctl snapshot status <SAVED_PATH> to check after saving ETCD. `Not necessarily to use certificate.`
+>>>> 3. ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot restore /opt/snapshot-pre-boot.db. `Not necessarily to use certificate, better to use this on the test.`
+>>>> 4. `ETCDCTL_API=3 etcdctl snapshot restore /opt/snapshot-pre-boot.db` is wrong, actually needs `--data-dir` which can get from `ETCDCTL_API=3 etcdctl snapshot restore --help if you do not use certificate`. `--data-dir` is the path where allocates the restored back-up.
+>>>> 5. On the test, better to kubectl get nodes after restoring.
+
+```sh
+ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /opt/snapshot-pre-boot.db
+
+ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot restore /opt/snapshot-pre-boot.db
+```
+
 # Good Links
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 - [Update the node](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
