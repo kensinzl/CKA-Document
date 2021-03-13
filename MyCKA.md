@@ -557,6 +557,7 @@ red-75f847bf79-hbhmt    1/1     Running   0          8m38s   10.244.3.6   node01
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 - [Update the node](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
 - https://stackoverflow.com/questions/47107117/how-to-debug-when-kubernetes-nodes-are-in-not-ready-state
+- [Updating Kubeadm Cluster](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
 
 
 
