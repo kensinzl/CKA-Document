@@ -568,11 +568,46 @@ ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernete
 ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot restore /opt/snapshot-pre-boot.db
 ```
 
+# Ingress
+>>>> 1. Ingress occurs from service(NodePort, ClusterIP and LoadBalance)
+NodePort has the port range limitation. ClusterIP only accept the internal IP. LoadBalance needs the charged third party.
+Ingress is designed to fix weekness of LoadBalance.
+[reference1](https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html)
+[reference2](https://thenewstack.io/kubernetes-ingress-for-beginners/)
+>>>> 2. In order for the Ingress to work, the cluster must have an ingress controller running. Unlike other types of controllers which run as part of the kube-controller-manager binary, Ingress controllers are not started automatically with a cluster. 
+[Controllers List - Always Using Nginx](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
+```sh
+controlplane $ kubectl get pods --all-namespaces
+NAMESPACE       NAME                                        READY   STATUS    RESTARTS   AGE
+ingress-space   nginx-ingress-controller-697cfbd4d9-6j92h   1/1     Running   0          38m
+```
+>>>> 3. Ingress supports the following from [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) [MiniKube](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
+`1. Single host with multiple paths` 
+`2. Multiple hosts with multiple paths` 
+`3. No host, so the rule applies to all inbound HTTP traffic. ` 
+`4. One path may relate to one service, if the service is NodePort, what configuring in the Ingress yaml file is the port of the service rather than NodePort. `
+`5. defaultBackend is configured in an Ingress controller to service any requests that do not match a path in the spec. Which needs the default pod and service`
+```sh
+controlplane $ kubectl get pods --all-namespaces
+NAMESPACE       NAME                                        READY   STATUS    RESTARTS   AGE
+app-space       default-backend-5cf9bfb9d-b9mlw             1/1     Running   0          17m
+
+controlplane $ kubectl get svc --all-namespaces
+NAMESPACE       NAME                   TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+app-space       default-http-backend   ClusterIP   10.102.159.203   <none>        80/TCP                       12m
+```
+`6. Ingress modification no necessary to delete the current running one, just using "edit" the current running one like deployment.`
+`7. Ingress's namespace should be the same with the service's namespace. But if the service is vital then need to put in a seprate namespace, then we should create a new Ingress. K8S can track the URL to find the related service`
+[Last Example of hand dirty](https://kodekloud.com/courses/certified-kubernetes-administrator-with-practice-tests-labs/lectures/12038778)
+
+
+
 # Good Links
 - [Overview of kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
 - [Update the node](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
 - https://stackoverflow.com/questions/47107117/how-to-debug-when-kubernetes-nodes-are-in-not-ready-state
 - [Updating Kubeadm Cluster](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/)
+- [How to Create ConfigMap](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/)
 
 
 
