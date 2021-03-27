@@ -282,7 +282,38 @@ spec:
   - Ingress
   - Egress
 ```
-##### Ingress and Egress
+##### multiple egress. the ingress's port belongs to the podSelector, but egress's pod belong to each rule's port.
+```sh
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: internal-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      name: internal
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          name: payroll
+    ports:
+    - protocol: TCP
+      port: 8080
+  - to:
+    - podSelector:
+        matchLabels:
+          name: mysql
+    ports:
+    - protocol: TCP
+      port: 3306
+```
+
+
+# Ingress and Egress
 `- be careful of the three dash '-' from ipBlock, namespaceSelector and podSelector, that means match either of them. podSelector is the same namespace with the its network policy. Eg: here networkpolicy and podSelector is the same default namespace`
 `- this example shows how to control the Ingress and Egress of one pod which label is (role=db)`
 ```sh
