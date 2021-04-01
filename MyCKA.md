@@ -218,8 +218,48 @@ roleRef:
 >>root@kubemaster:~/CKA# kubectl get services
 Error from server (Forbidden): services is forbidden: User "employee" cannot list resource "services" in API group "" in the namespace "default"
 
+`This table describes namespace condition. `
+- `NameSpace of role confines the role access which particular namespace.`
+- `NameSpace of role binding confines the subject(role target) access which particular namespace which be same with role's namespace`
+- `resourceNames of role/cluster role can confine's resource further. `
+`Eg: there are red, blue and white pod in the dev namespace.`
+`The following spnit just let you touch the red and white pod exclude blue one`
+
+```sh
+kind: Role
+metadata:
+  namespace: dev
+  name: pod-role
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pod"]
+  resourceNames: ["red", "white"]
+  verbs: ["update", "get"]
+```
+|  | RoleBing`[DEV]` | ClusterRoleBing |
+| ------ | ------ |------ |
+| Role`[DEV]` | NameSpace have to same, `DEV` | Not Common Case |
+| ClusterRole | `DEV` | All NameSpaces |
+
+- `apiGroups value can use kubectl api-resources -o wide, Eg, pod is on the core API, deploy is on the apps`
+   `that is why role for deploy need use apps apiGroup`
+```sh
+rules:
+- apiGroups: ["extensions", "apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+```
+
+##### kubectl api-resources --namespaced=true `what resources need namespaces`
+##### kubectl api-resources --namespaced=false `what resources do not need namespaces`
+
+
 # Network Policy [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), [Hand Dirty](https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/), [Good View](https://medium.com/@reuvenharrison/an-introduction-to-kubernetes-network-policies-for-security-people-ba92dd4c809d)
 >> it controls traffic flow for a pod 
+>> `"role=db" pods in the "default" namespace` from [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), will know metadata.namespace is the namespace of spec.podSelector pod
+>> podSelector: any pod in the "default" namespace from metadata.namespace with the label "role=frontend"
+>> namespaceSelector: any pod in a namespace with the label "project=myproject"
+
 ##### selects all pods but does not allow any ingress traffic to those pods. podSelector {} means all pods
 ```sh
 apiVersion: networking.k8s.io/v1
