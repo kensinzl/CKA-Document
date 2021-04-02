@@ -244,7 +244,7 @@ rules:
 - `apiGroups value can use kubectl api-resources -o wide, Eg, pod is on the core API, deploy is on the apps`
    `that is why role for deploy need use apps apiGroup`
    `if you type wrong like apps -> app, then not work`
-- `take care the subject.kind namespace, see the mock example`
+- `take care the role binding subject.kind namespace, see the mock example`
 ```sh
 rules:
 - apiGroups: ["extensions", "apps"]
