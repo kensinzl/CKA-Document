@@ -243,6 +243,7 @@ rules:
 
 - `apiGroups value can use kubectl api-resources -o wide, Eg, pod is on the core API, deploy is on the apps`
    `that is why role for deploy need use apps apiGroup`
+   `if you type wrong like apps -> app, then not work`
 ```sh
 rules:
 - apiGroups: ["extensions", "apps"]
