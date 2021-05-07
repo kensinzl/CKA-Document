@@ -74,12 +74,18 @@ spec:
 
 **metadata.labels** is just Deployment itself label value.
 
-# Assigning Pods to Nodes, [Assign Pod Node](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
+# Scheduler - Assigning Pods to Nodes
 - NodeSelector: Specifies a map of node's key-value pairs. It can put deployment or pod yaml file.
 [Assign Pod Node - Pod](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/)
-[Assign Pod Node - Deployment](https://kubernetes.io/docs/setup/production-environment/windows/user-guide-windows-containers/)
 - NodeName: Typically match the node name. **Not Recommend**
-- Taint: Allow node to repeal pods.  **key=value:effect:operator**, [taint-and-toleration](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+- Taint: Allow node to repeal pods.  **key=value:effect:operator**. 
+Taint is for the node with effect, if the effect is NoSchedule then not affect the existing Pod, but if NoExecute then affect them. 
+[taint-and-toleration](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
+- Toleration: Toleration is for the pod to match Taint. Allows but not required to the pods on the nodes with matching taint.
+- Affinity: The property of Pod attracting which Node to allocate. Affinity is Pod to match the label of Node. It is the advanced version of NodeSelector.
+preferredDuringSchedulingIgnoredDuringExecution(soft) VS requiredDuringSchedulingIgnoredDuringExecution(hard)
+[Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/), How to add the label for a node, *kubectl label nodes <node_name> mytest=awesome*
+- Cordon/Uncordon: Making a nodes as unschedulable preventing the scheduler from placing news pods on the nodes but does not affect the existing Pods on that Nodes
 >> Add taint for a node / remove a taint from a node
 
 >> This means that no pod will be able to schedule onto node1 unless it has a matching toleration.
@@ -95,14 +101,6 @@ Taints:             node-role.kubernetes.io/master:NoSchedule
 kubectl taint nodes node1 key1=value1:NoSchedule
 kubectl taint nodes node1 key1=value1:NoSchedule-
 ```
-
-- Toleration: Allows but not required to the pods on the nodes with matching taint.
-
-- Affinity: It is the property of pods which attract them a set of node.
-[Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/), How to add the label for a node, *kubectl label nodes <node_name> mytest=awesome*
-[Assign Pods Via Node Affinity](https://kubernetes.io/docs/tasks/configure-pod-container/assign-pods-nodes-using-node-affinity/)
-[Node Affinity](https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity)
-
 |  | Node | Pod |
 | :---: | :---: | :---: |
 | Taint | ◯ | × |
