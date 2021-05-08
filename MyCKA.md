@@ -86,6 +86,7 @@ Taint is for the node with effect, if the effect is NoSchedule then not affect t
 preferredDuringSchedulingIgnoredDuringExecution(soft) VS requiredDuringSchedulingIgnoredDuringExecution(hard)
 [Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/), How to add the label for a node, *kubectl label nodes <node_name> mytest=awesome*
 - Cordon/Uncordon: Making a nodes as unschedulable preventing the scheduler from placing news pods on the nodes but does not affect the existing Pods on that Nodes
+- Drain: evict the pods from the node exception the daemonset.
 >> Add taint for a node / remove a taint from a node
 
 >> This means that no pod will be able to schedule onto node1 unless it has a matching toleration.
