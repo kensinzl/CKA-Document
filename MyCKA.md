@@ -8,9 +8,6 @@
 - yaml style: *NOT RECOMMEND*
 [Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
 
-# Persistence Volume
-- [Emptydir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir), multiple containers among pod can share the information in this volume, and if the pod is gone, then all volume is also gone.
-
 # DaemonSet
 >> A DaemonSet ensures that all (or some) Nodes run a copy of a Pod, depends on the nodes' taint and toleration.
 
@@ -73,6 +70,22 @@ spec:
 *So, the label value of **spec.selector.matchLabels** must be same to **spec.template.metadata.labels***
 
 **metadata.labels** is just Deployment itself label value.
+
+# Persistence Volume
+- [Emptydir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir), multiple containers among pod can share the information in this volume, and if the pod is gone, then all volume is also gone.
+- [HostPath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath), a hostPath volume mounts a file or directory from the host node's filesystem into your pod. But this pod referencing a HostPath volume may be moved by the scheduler to a different node resulting in data loss.
+- [Local](https://kubernetes.io/blog/2019/04/04/kubernetes-1.14-local-persistent-volumes-ga/), local and hostPath are quite similar, but the Kubernetes scheduler ensures that a pod using a Local Persistent Volume is always scheduled to the same node
+
+>>> When PV is created, its status is `Available`. Then when a matching PVC occurs, both status will become into `Bound`.
+>>> `Describe` the PVC can see which PV is allocate.
+>>> PV is across the cluster so it has no namespace limitation, but PVC is limited into the Namespace which has to be same with its refered POD.
+>>> PV and PVC have to match capacity(PVC eaqual or less PV), same storageClassName(eg: Manual) and accessMode(eg: ReadWriteOnce)
+>>> `Seems can not use edit the existing PVC, have to save the definition file first and then delete and apply again`
+
+# Secret Volume and Environment
+- [Secret can be used as the Volume](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets)
+- [Secret can be used as the Environment](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables)
+- When Secret combined with Pod, their namespace should be same.
 
 # Scheduler - Assigning Pods to Nodes
 - NodeSelector: Specifies a map of node's key-value pairs. It can put deployment or pod yaml file.
