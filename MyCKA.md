@@ -80,6 +80,8 @@ spec:
 - NodeName: Typically match the node name. **Not Recommend**
 - Taint: Allow node to repeal pods.  **key=value:effect:operator**. 
 Taint is for the node with effect, if the effect is NoSchedule then not affect the existing Pod, but if NoExecute then affect them. 
+`NoExecute: The pod will be evicted from the node (if it is already running on the node), and will not be scheduled onto the node (if it is not yet running on the node).`
+`NoSchedule: No pod will be able to schedule onto node1 unless it has a matching toleration.`
 [taint-and-toleration](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)
 - Toleration: Toleration is for the pod to match Taint. Allows but not required to the pods on the nodes with matching taint.
 - Affinity: The property of Pod attracting which Node to allocate. Affinity is Pod to match the label of Node. It is the advanced version of NodeSelector.
