@@ -81,6 +81,7 @@ spec:
 >>> PV is across the cluster so it has no namespace limitation, but PVC is limited into the Namespace which has to be same with its refered POD.
 >>> PV and PVC have to match capacity(PVC eaqual or less PV), same storageClassName(eg: Manual) and accessMode(eg: ReadWriteOnce)
 >>> `Seems can not use edit the existing PVC, have to save the definition file first and then delete and apply again`
+>>> `volumeMounts` for the Pod(eg: like mount path) and `volume` is for the Pod mount target(eg: Secret or PVC)
 
 # Secret Volume and Environment
 - [Secret can be used as the Volume](https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets)
