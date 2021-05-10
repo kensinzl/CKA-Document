@@ -340,7 +340,7 @@ spec:
   - Ingress
   - Egress
 ```
-##### `allowing connections from Pods with the label role=client in namespaces with the label user=alice`
+##### `allowing connections from Pods with the label role=client in namespaces with the label user=alice` Note the pod is not among NetworkPolicy's namespace and it is namepace with user: alice label.
 ```sh
   ingress:
   - from:
