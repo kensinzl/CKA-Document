@@ -272,6 +272,7 @@ rules:
 
 
 # Network Policy [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), [Hand Dirty](https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/), [Good View](https://medium.com/@reuvenharrison/an-introduction-to-kubernetes-network-policies-for-security-people-ba92dd4c809d)
+>>By default, pods are non-isolated; they accept traffic from any source. Pods become isolated by having a NetworkPolicy that selects them
 >> it controls traffic flow for a pod 
 >> `"role=db" pods in the "default" namespace` from [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), will know metadata.namespace is the namespace of spec.podSelector pod
 >> podSelector: any pod in the "default" namespace from metadata.namespace with the label "role=frontend"
@@ -338,6 +339,17 @@ spec:
   policyTypes:
   - Ingress
   - Egress
+```
+##### `allowing connections from Pods with the label role=client in namespaces with the label user=alice`
+```sh
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          user: alice
+      podSelector:
+        matchLabels:
+          role: client
 ```
 ##### multiple egress. the ingress's port belongs to the podSelector, but egress's pod belong to each rule's port.
 ```sh
