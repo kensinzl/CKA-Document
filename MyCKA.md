@@ -272,8 +272,7 @@ rules:
 
 
 # Network Policy [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), [Hand Dirty](https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/), [Good View](https://medium.com/@reuvenharrison/an-introduction-to-kubernetes-network-policies-for-security-people-ba92dd4c809d)
->>By default, pods are non-isolated; they accept traffic from any source. Pods become isolated by having a NetworkPolicy that selects them
->> it controls traffic flow for a pod 
+>>By default, pods are non-isolated and they accept traffic from any source. Pods become isolated by having a NetworkPolicy that selects them.
 >> `"role=db" pods in the "default" namespace` from [Network Policy](https://kubernetes.io/docs/concepts/services-networking/network-policies/), will know metadata.namespace is the namespace of spec.podSelector pod
 >> podSelector: any pod in the "default" namespace from metadata.namespace with the label "role=frontend"
 >> namespaceSelector: any pod in a namespace with the label "project=myproject"
@@ -675,11 +674,15 @@ Ingress is designed to fix weekness of LoadBalance.
 [reference1](https://matthewpalmer.net/kubernetes-app-developer/articles/kubernetes-ingress-guide-nginx-example.html)
 [reference2](https://thenewstack.io/kubernetes-ingress-for-beginners/)
 >>>> 2. In order for the Ingress to work, the cluster must have an ingress controller running. Unlike other types of controllers which run as part of the kube-controller-manager binary, Ingress controllers are not started automatically with a cluster. 
+>>>> 3. DefaultBackend: An Ingress with no rules sends all traffic to a single default backend. The defaultBackend is conventionally a configuration option of the Ingress controller and is not specified in your Ingress resources.
+
+
 [Controllers List - Always Using Nginx](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/)
 ```sh
 controlplane $ kubectl get pods --all-namespaces
 NAMESPACE       NAME                                        READY   STATUS    RESTARTS   AGE
 ingress-space   nginx-ingress-controller-697cfbd4d9-6j92h   1/1     Running   0          38m
+ingress-space   default-backend-5cf9bfb9d-cdn75             1/1     Running   0          28m
 ```
 >>>> 3. Ingress supports the following from [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) [MiniKube](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
 `1. Single host with multiple paths` 
